@@ -1,25 +1,39 @@
 package ca.helios5009
 
-import java.net.ServerSocket
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import java.io.File
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
-val SOCKETLIST = mutableListOf<ClientHandler>()
+val quitingStatements = listOf("exit", "quit", "q", "e")
+
+external fun test(): String
+
 fun main() {
-	val host: String = "localhost"
-	val port: Int = 443
-	val server = ServerSocket(port)
+	val port = 443
 
-	println("Server started on port $port")
+	val commandsParse = CommandsParse()
+	val fileToExecute = Path("blueLeft.csv")
+	val pathSegment = File(fileToExecute.absolutePathString())
+	val commandString = commandsParse.read(pathSegment.readText())
+	val commands = jacksonObjectMapper().readValue(commandString, listOf<LinkedHashMap<String, Any>>()::class.java)
 
-	while (true) {
-		val socket = server.accept()
-		val client = ClientHandler(socket, onDisconnect)
-		SOCKETLIST.add(client)
-		println("Client connected: ${socket.inetAddress.hostAddress}: ${socket.port}")
 
+	for (command in commands) {
+		println(command["Start"])
 	}
+
+
+
+//	val server = HyperionServer(port = port)
+//	server.start()
+//	while (true) {
+//		val input = readlnOrNull()
+//		if (input?.lowercase() in quitingStatements) {
+//			println("Exiting...")
+//			server.stop()
+//			break
+//		}
+//	}
 }
 
-val onDisconnect: (ClientHandler) -> Unit = { client ->
-	client.running = false
-	SOCKETLIST.remove(client)
-}
