@@ -8,7 +8,5 @@ class CommandsParse {
 //		path.replace("")
 		System.loadLibrary("hyperionlib")
 	}
-
 	external fun read(commands: String): String
-
 }
