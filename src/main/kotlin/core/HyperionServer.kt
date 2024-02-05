@@ -1,7 +1,6 @@
-package ca.helios5009
+package ca.helios5009.core
 
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.gson.Gson
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
@@ -9,11 +8,11 @@ import java.lang.Exception
 import java.net.InetSocketAddress
 
 class HyperionServer(private val address: String = "127.0.0.1", private val port: Int = 443): WebSocketServer(InetSocketAddress(address, port)) {
-
+	val gsonParser = Gson()
 	override fun onOpen(socket: WebSocket,handshake: ClientHandshake) {
 		val values = LinkedHashMap<String, Any>()
 		values["event"] = "pong"
-		val json = jacksonMapperBuilder().build().writeValueAsString(values)
+		val json = gsonParser.toJson(values)
 		socket.send(json)
 		println("Socket opened from ${socket.remoteSocketAddress}")
 	}
@@ -24,13 +23,13 @@ class HyperionServer(private val address: String = "127.0.0.1", private val port
 	}
 
 	override fun onMessage(socket: WebSocket, message: String) {
-		val data = jacksonObjectMapper().readValue(message, LinkedHashMap<String, Any>()::class.java)
+		val data = gsonParser.fromJson(message, LinkedHashMap<String, Any>()::class.java)
 		println("Message from ${socket.remoteSocketAddress}: $data")
 		when (data["event"]) {
 			"ping" -> {
 				val values = LinkedHashMap<String, Any>()
 				values["event"] = "pong"
-				val json = jacksonMapperBuilder().build().writeValueAsString(values)
+				val json = gsonParser.toJson(values)
 				socket.send(json)
 			}
 		}
