@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm") version "1.9.21"
-//    id("org.mozilla.rust-android-gradle.rust-android") version "0.9.3"
 }
 
 group = "ca.helios5009"
